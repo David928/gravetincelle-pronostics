@@ -1,0 +1,17 @@
+{
+  "name": "Gravetincelle – Pronostics FIFA 2026",
+  "short_name": "Gravetincelle",
+  "description": "Concours de pronostics Coupe du Monde FIFA 2026 – Boutique Gravetincelle",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a1f12",
+  "theme_color": "#0a1f12",
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
