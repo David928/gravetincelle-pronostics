@@ -580,17 +580,18 @@
   <div id="gate-box" class="welcome-box">
     <div class="trophy">⚽</div>
     <h2>Participez au concours !</h2>
-    <p>Entrez votre <strong style="color:var(--or)">code unique</strong> reçu en boutique, puis pronostiquéz les matchs de la Coupe du Monde.</p>
-    <div class="field-group">
-      <label>Votre code boutique</label>
-      <input type="text" id="input-code" placeholder="ex : GRAV-4782" maxlength="12" style="text-transform:uppercase">
-    </div>
+    <p>Pronostiquez les matchs de la <strong style="color:var(--or)">Coupe du Monde FIFA 2026</strong> et tentez de gagner des lots en boutique !</p>
     <div class="field-group">
       <label>Votre prénom</label>
       <input type="text" id="input-name" placeholder="ex : Sophie">
     </div>
-    <div class="error-msg" id="err-msg">Code invalide ou déjà utilisé.</div>
-    <button class="btn" onclick="enterConcours()">Accéder à mes pronostics →</button>
+    <div class="field-group">
+      <label>Votre numéro de téléphone</label>
+      <input type="text" id="input-phone" placeholder="ex : 06 12 34 56 78" maxlength="14">
+    </div>
+    <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Le téléphone sert uniquement à retrouver vos pronostics si vous revenez plus tard.</p>
+    <div class="error-msg" id="err-msg">Erreur</div>
+    <button class="btn" onclick="enterConcours()">C'est parti ! →</button>
   </div>
 
   <!-- ZONE PRONOSTICS (affichée après validation du code) -->
@@ -639,21 +640,6 @@
   </div>
 
   <div id="admin-panel" class="admin-panel">
-
-    <!-- Gestion des codes -->
-    <div class="section-title">Codes participants</div>
-    <div class="code-manager">
-      <div class="info-box">
-        Générez et distribuez des codes en boutique. Cliquez sur un code pour le supprimer.</br>
-        <strong>Astuce :</strong> imprimez-les sur un ticket ou une étiquette QR.
-      </div>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
-        <input type="text" id="new-code-input" placeholder="GRAV-1234" style="width:150px;flex-shrink:0">
-        <button class="btn btn-sm btn-outline" onclick="addCode()">+ Ajouter</button>
-        <button class="btn btn-sm btn-outline" onclick="generateCode()">🎲 Auto</button>
-      </div>
-      <div class="codes-grid" id="codes-grid"></div>
-    </div>
 
     <!-- Résultats réels -->
     <div class="section-title">Résultats officiels</div>
@@ -734,27 +720,28 @@ function showTab(id) {
   if (id === 'tab-admin' && STATE.adminLogged) renderAdmin();
 }
 
-// ========== ACCUEIL / CODE ==========
+// ========== ACCUEIL / INSCRIPTION ==========
 async function enterConcours() {
-  const code = document.getElementById('input-code').value.trim().toUpperCase();
   const name = document.getElementById('input-name').value.trim();
+  const phone = document.getElementById('input-phone').value.trim().replace(/\s/g, '');
   const err = document.getElementById('err-msg');
 
   if (!name) { err.style.display='block'; err.textContent='Entrez votre prénom.'; return; }
-
-  // Vérifier le code dans Supabase
-  const { data: codeData } = await sb.from('codes').select('code').eq('code', code).single();
-  if (!codeData) { err.style.display='block'; err.textContent='Code invalide. Demandez votre code en boutique !'; return; }
+  if (phone.length < 8) { err.style.display='block'; err.textContent='Entrez un numéro de téléphone valide.'; return; }
 
   err.style.display = 'none';
 
-  // Créer ou récupérer le participant
-  const { data: existing } = await sb.from('participants').select('*').eq('code', code).single();
+  // Vérifier si ce téléphone existe déjà
+  const { data: existing } = await sb.from('participants').select('*').eq('code', phone).single();
+
   if (!existing) {
-    await sb.from('participants').insert({ code, name });
+    // Nouveau participant : créer le code + participant
+    await sb.from('codes').upsert({ code: phone }, { onConflict: 'code' });
+    const { error } = await sb.from('participants').insert({ code: phone, name });
+    if (error) { err.style.display='block'; err.textContent='Erreur lors de l\'inscription. Réessayez.'; return; }
   }
 
-  STATE.currentCode = code;
+  STATE.currentCode = phone;
   STATE.currentName = existing ? existing.name : name;
 
   document.getElementById('gate-box').style.display = 'none';
@@ -943,47 +930,8 @@ function adminLogin() {
 }
 
 async function renderAdmin() {
-  await renderAdminCodes();
-  renderAdminMatches();
+  await renderAdminMatches();
   await renderAdminParticipants();
-}
-
-async function renderAdminCodes() {
-  const { data: codes } = await sb.from('codes').select('code');
-  const { data: participants } = await sb.from('participants').select('code,name');
-  const pMap = {};
-  (participants || []).forEach(p => { pMap[p.code] = p.name; });
-
-  const grid = document.getElementById('codes-grid');
-  grid.innerHTML = (codes || []).map(c => {
-    const used = pMap[c.code];
-    const label = used ? `${c.code} (${used})` : c.code;
-    return `<span class="code-tag" title="Cliquer pour supprimer" onclick="removeCode('${c.code}')">${label} ✕</span>`;
-  }).join('');
-}
-
-async function addCode() {
-  const val = document.getElementById('new-code-input').value.trim().toUpperCase();
-  if (!val) return;
-  const { error } = await sb.from('codes').insert({ code: val });
-  if (error) { showToast('Code déjà existant ou erreur'); return; }
-  document.getElementById('new-code-input').value = '';
-  await renderAdminCodes();
-}
-
-async function generateCode() {
-  const n = Math.floor(1000 + Math.random()*9000);
-  const code = 'GRAV-' + n;
-  const { error } = await sb.from('codes').insert({ code });
-  if (error) { await generateCode(); return; }
-  showToast('Code généré : ' + code);
-  await renderAdminCodes();
-}
-
-async function removeCode(code) {
-  if (!confirm(`Supprimer le code ${code} ?`)) return;
-  await sb.from('codes').delete().eq('code', code);
-  await renderAdminCodes();
 }
 
 async function renderAdminMatches() {
@@ -1060,7 +1008,7 @@ async function renderAdminParticipants() {
   }
 
   let html = `<table class="ranking-table"><thead>
-    <tr><th>#</th><th>Prénom</th><th>Code</th><th style="text-align:right">Points</th></tr>
+    <tr><th>#</th><th>Prénom</th><th>Téléphone</th><th style="text-align:right">Points</th></tr>
   </thead><tbody>`;
   entries.forEach((e,i) => {
     const lot = i < STATE.nbLots ? `<span class="lot-badge">🎁</span>` : '';
