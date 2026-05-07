@@ -580,7 +580,11 @@
   <div id="gate-box" class="welcome-box">
     <div class="trophy">⚽</div>
     <h2>Participez au concours !</h2>
-    <p>Pronostiquez les matchs de la <strong style="color:var(--or)">Coupe du Monde FIFA 2026</strong> et tentez de gagner des lots en boutique !</p>
+    <p>Entrez le <strong style="color:var(--or)">code boutique</strong> reçu chez Gravetincelle, puis inscrivez-vous pour pronostiquer les matchs de la Coupe du Monde !</p>
+    <div class="field-group">
+      <label>Code boutique</label>
+      <input type="text" id="input-code" placeholder="Entrez le code…" style="text-transform:uppercase">
+    </div>
     <div class="field-group">
       <label>Votre prénom</label>
       <input type="text" id="input-name" placeholder="ex : Sophie">
@@ -589,7 +593,7 @@
       <label>Votre numéro de téléphone</label>
       <input type="text" id="input-phone" placeholder="ex : 06 12 34 56 78" maxlength="14">
     </div>
-    <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Le téléphone sert uniquement à retrouver vos pronostics si vous revenez plus tard.</p>
+    <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Le téléphone sert à retrouver vos pronostics si vous revenez plus tard.</p>
     <div class="error-msg" id="err-msg">Erreur</div>
     <button class="btn" onclick="enterConcours()">C'est parti ! →</button>
   </div>
@@ -707,6 +711,7 @@ let STATE = {
   currentName: null,
   adminLogged: false,
   adminPwd: 'Gravetincelle2026',
+  boutiqueCode: 'GRAV2026',
   nbLots: 5,
 };
 
@@ -722,10 +727,12 @@ function showTab(id) {
 
 // ========== ACCUEIL / INSCRIPTION ==========
 async function enterConcours() {
+  const code = document.getElementById('input-code').value.trim().toUpperCase();
   const name = document.getElementById('input-name').value.trim();
   const phone = document.getElementById('input-phone').value.trim().replace(/\s/g, '');
   const err = document.getElementById('err-msg');
 
+  if (code !== STATE.boutiqueCode) { err.style.display='block'; err.textContent='Code boutique incorrect. Demandez-le en boutique Gravetincelle !'; return; }
   if (!name) { err.style.display='block'; err.textContent='Entrez votre prénom.'; return; }
   if (phone.length < 8) { err.style.display='block'; err.textContent='Entrez un numéro de téléphone valide.'; return; }
 
