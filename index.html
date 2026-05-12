@@ -823,6 +823,21 @@ async function initApp() {
       if (row.key === 'boutique_code') STATE.boutiqueCode = row.value;
     });
   }
+
+  const saved = localStorage.getItem('grav_session');
+  if (saved) {
+    try {
+      const { code, name } = JSON.parse(saved);
+      STATE.currentCode = code;
+      STATE.currentName = name;
+      document.getElementById('gate-box').style.display = 'none';
+      document.getElementById('prono-zone').style.display = 'block';
+      document.getElementById('display-name').textContent = '👤 ' + name;
+      await renderMatches();
+    } catch(e) {
+      localStorage.removeItem('grav_session');
+    }
+  }
 }
 initApp();
 
@@ -861,6 +876,8 @@ async function enterConcours() {
 
   STATE.currentCode = phone;
   STATE.currentName = existing ? existing.name : name;
+
+  localStorage.setItem('grav_session', JSON.stringify({ code: STATE.currentCode, name: STATE.currentName }));
 
   document.getElementById('gate-box').style.display = 'none';
   document.getElementById('prono-zone').style.display = 'block';
