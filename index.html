@@ -932,8 +932,17 @@ async function enterConcours() {
 
   if (!existing) {
     await sb.from('codes').upsert({ code: phone }, { onConflict: 'code' });
-    const { error } = await sb.from('participants').insert({ code: phone, name, team_name: team });
-    if (error) { err.style.display='block'; err.textContent='Erreur lors de l\'inscription. Réessayez.'; return; }
+    let insertData = { code: phone, name };
+    if (team) insertData.team_name = team;
+    const { error } = await sb.from('participants').insert(insertData);
+    if (error) {
+      if (team && error.message && error.message.includes('team_name')) {
+        const { error: e2 } = await sb.from('participants').insert({ code: phone, name });
+        if (e2) { err.style.display='block'; err.textContent='Erreur : ' + e2.message; return; }
+      } else {
+        err.style.display='block'; err.textContent='Erreur : ' + error.message; return;
+      }
+    }
   } else if (team && existing.team_name !== team) {
     await sb.from('participants').update({ team_name: team }).eq('code', phone);
   }
