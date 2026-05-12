@@ -896,16 +896,16 @@ async function renderMatches() {
 }
 
 function buildGroupFilter() {
-  const dates = [...new Set(MATCHES.map(m => m.date))];
+  const groups = [...new Set(MATCHES.map(m => m.groupe.replace('Groupe ','')))];
   const bar = document.getElementById('group-filter');
   bar.innerHTML = `<button class="group-pill active" data-group="all" onclick="setGroupFilter(null)">Tous</button>`
-    + dates.map(d => `<button class="group-pill" data-group="${d}" onclick="setGroupFilter('${d}')">${d}</button>`).join('');
+    + groups.map(g => `<button class="group-pill" data-group="${g}" onclick="setGroupFilter('${g}')">${g}</button>`).join('');
 }
 
-function setGroupFilter(d) {
-  activeGroupFilter = d;
+function setGroupFilter(g) {
+  activeGroupFilter = g;
   document.querySelectorAll('.group-pill').forEach(p => {
-    p.classList.toggle('active', p.dataset.group === (d || 'all'));
+    p.classList.toggle('active', p.dataset.group === (g || 'all'));
   });
   renderMatchesHTML();
 }
@@ -918,7 +918,9 @@ function renderMatchesHTML() {
   (STATE.resultsData || []).forEach(r => { results[r.match_id] = [r.score_home, r.score_away]; });
 
   const today = new Date().toISOString().slice(0,10);
-  const filtered = activeGroupFilter ? MATCHES.filter(m => m.date === activeGroupFilter) : MATCHES;
+  let filtered = activeGroupFilter
+    ? MATCHES.filter(m => m.groupe === `Groupe ${activeGroupFilter}`)
+    : [...MATCHES].sort((a,b) => (DATE_MAP[a.date] || '').localeCompare(DATE_MAP[b.date] || ''));
 
   let html = '';
   let currentDate = '';
@@ -958,7 +960,7 @@ function renderMatchesHTML() {
           ${badge}
         </div>
         <div class="team right">${m.away.split(' ')[0]} <span>${m.away.split(' ').slice(1).join(' ')}</span></div>
-        <div class="match-date">${m.groupe}</div>
+        <div class="match-date">📅 ${m.date} · ${m.groupe}</div>
       </div>`;
   });
 
