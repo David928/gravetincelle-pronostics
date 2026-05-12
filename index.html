@@ -271,7 +271,32 @@
   }
 
   .match-card:hover { border-color: rgba(245,197,24,0.3); }
-  .match-card.locked { opacity: 0.6; }
+  .match-card { position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.15s, box-shadow 0.15s; }
+  .match-card:not(.locked):hover { border-color: rgba(245,197,24,0.5); transform: translateY(-1px); box-shadow: 0 4px 24px rgba(0,0,0,0.35); }
+  .match-card.locked { opacity: 0.55; border-color: rgba(255,255,255,0.04); }
+  .match-card::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,transparent 65%,rgba(245,197,24,0.04)); pointer-events:none; }
+
+  /* ---- GROUP FILTER ---- */
+  .group-filter {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+  }
+  .group-pill {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 0.28rem 0.65rem;
+    border: 1px solid rgba(245,197,24,0.3);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--gris);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .group-pill.active, .group-pill:hover { background: var(--or); color: var(--sombre); border-color: var(--or); }
 
   .team {
     display: flex;
@@ -619,6 +644,7 @@
       <span><span class="dot gray"></span>Raté = 0 pt</span>
     </div>
 
+    <div class="group-filter" id="group-filter"></div>
     <div id="matches-list"></div>
 
     <div class="save-bar">
@@ -766,6 +792,14 @@ const SUPABASE_URL = 'https://bernppiarxichqwdbwne.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlcm5wcGlhcnhpY2hxd2Rid25lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxODA4OTksImV4cCI6MjA5Mzc1Njg5OX0.d4ZE-gftNUBkCCajKcHT6vTcQJrSAaq9eCIwvi481sM';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+const DATE_MAP = {
+  '11 Juin':'2026-06-11','12 Juin':'2026-06-12','13 Juin':'2026-06-13','14 Juin':'2026-06-14',
+  '15 Juin':'2026-06-15','16 Juin':'2026-06-16','17 Juin':'2026-06-17','18 Juin':'2026-06-18',
+  '19 Juin':'2026-06-19','20 Juin':'2026-06-20','21 Juin':'2026-06-21','22 Juin':'2026-06-22',
+  '23 Juin':'2026-06-23','24 Juin':'2026-06-24','25 Juin':'2026-06-25','26 Juin':'2026-06-26',
+  '27 Juin':'2026-06-27',
+};
+
 let STATE = {
   currentCode: null,
   currentName: null,
@@ -773,7 +807,24 @@ let STATE = {
   adminPwd: 'Gravetincelle2026',
   boutiqueCode: 'GRAV2026',
   nbLots: 5,
+  pronoData: null,
+  resultsData: null,
 };
+
+let activeGroupFilter = null;
+
+// ========== INIT (charge config depuis Supabase) ==========
+async function initApp() {
+  const { data } = await sb.from('admin_config').select('*');
+  if (data) {
+    data.forEach(row => {
+      if (row.key === 'admin_pwd') STATE.adminPwd = row.value;
+      if (row.key === 'nb_lots') STATE.nbLots = parseInt(row.value);
+      if (row.key === 'boutique_code') STATE.boutiqueCode = row.value;
+    });
+  }
+}
+initApp();
 
 // ========== NAVIGATION ==========
 function showTab(id) {
@@ -819,21 +870,43 @@ async function enterConcours() {
 }
 
 async function renderMatches() {
-  const container = document.getElementById('matches-list');
-
-  // Charger pronostics du joueur et résultats
   const { data: pronoData } = await sb.from('pronostics').select('*').eq('participant_code', STATE.currentCode);
   const { data: resultsData } = await sb.from('results').select('*');
+  STATE.pronoData = pronoData;
+  STATE.resultsData = resultsData;
+  buildGroupFilter();
+  renderMatchesHTML();
+}
 
+function buildGroupFilter() {
+  const groups = [...new Set(MATCHES.map(m => m.groupe.replace('Groupe ','')))];
+  const bar = document.getElementById('group-filter');
+  bar.innerHTML = `<button class="group-pill active" data-group="all" onclick="setGroupFilter(null)">Tous</button>`
+    + groups.map(g => `<button class="group-pill" data-group="${g}" onclick="setGroupFilter('${g}')">${g}</button>`).join('');
+}
+
+function setGroupFilter(g) {
+  activeGroupFilter = g;
+  document.querySelectorAll('.group-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.group === (g || 'all'));
+  });
+  renderMatchesHTML();
+}
+
+function renderMatchesHTML() {
+  const container = document.getElementById('matches-list');
   const prono = {};
-  (pronoData || []).forEach(p => { prono[p.match_id] = [p.score_home, p.score_away]; });
+  (STATE.pronoData || []).forEach(p => { prono[p.match_id] = [p.score_home, p.score_away]; });
   const results = {};
-  (resultsData || []).forEach(r => { results[r.match_id] = [r.score_home, r.score_away]; });
+  (STATE.resultsData || []).forEach(r => { results[r.match_id] = [r.score_home, r.score_away]; });
+
+  const today = new Date().toISOString().slice(0,10);
+  const filtered = activeGroupFilter ? MATCHES.filter(m => m.groupe === `Groupe ${activeGroupFilter}`) : MATCHES;
 
   let html = '';
   let currentGroup = '';
 
-  MATCHES.forEach(m => {
+  filtered.forEach(m => {
     if (m.groupe !== currentGroup) {
       currentGroup = m.groupe;
       html += `<div class="group-header">${m.groupe}</div>`;
@@ -841,29 +914,29 @@ async function renderMatches() {
 
     const p = prono[m.id] || ['',''];
     const r = results[m.id];
+    const kickoffPassed = DATE_MAP[m.date] && today >= DATE_MAP[m.date];
+    const isLocked = !!r || kickoffPassed;
     let badge = '';
-    let locked = '';
 
-    if (r) {
-      locked = ' locked';
-      if (p[0]!=='' && p[1]!=='') {
-        const pts = calcPoints(p, r);
-        if (pts === 3) badge = '<span class="result-badge exact">✦ Exact +3pts</span>';
-        else if (pts === 1) badge = '<span class="result-badge correct">✓ Bon vainqueur +1pt</span>';
-        else badge = '<span class="result-badge wrong">✗ Raté</span>';
-      }
+    if (r && p[0]!=='' && p[1]!=='') {
+      const pts = calcPoints(p, r);
+      if (pts === 3) badge = '<span class="result-badge exact">✦ Exact +3pts</span>';
+      else if (pts === 1) badge = '<span class="result-badge correct">✓ Bon vainqueur +1pt</span>';
+      else badge = '<span class="result-badge wrong">✗ Raté</span>';
+    } else if (kickoffPassed && !r) {
+      badge = '<span class="result-badge wrong">🔒 En cours</span>';
     }
 
     html += `
-      <div class="match-card${locked}">
+      <div class="match-card${isLocked?' locked':''}">
         <div class="team">${m.home.split(' ')[0]} <span>${m.home.split(' ').slice(1).join(' ')}</span></div>
         <div style="text-align:center">
           <div class="score-inputs">
             <input type="number" min="0" max="20" value="${p[0]}" placeholder="–"
-              id="h_${m.id}" ${r?'disabled':''}>
+              id="h_${m.id}" ${isLocked?'disabled':''}>
             <span class="vs">:</span>
             <input type="number" min="0" max="20" value="${p[1]}" placeholder="–"
-              id="a_${m.id}" ${r?'disabled':''}> 
+              id="a_${m.id}" ${isLocked?'disabled':''}>
           </div>
           ${badge}
         </div>
