@@ -896,16 +896,16 @@ async function renderMatches() {
 }
 
 function buildGroupFilter() {
-  const groups = [...new Set(MATCHES.map(m => m.groupe.replace('Groupe ','')))];
+  const dates = [...new Set(MATCHES.map(m => m.date))];
   const bar = document.getElementById('group-filter');
   bar.innerHTML = `<button class="group-pill active" data-group="all" onclick="setGroupFilter(null)">Tous</button>`
-    + groups.map(g => `<button class="group-pill" data-group="${g}" onclick="setGroupFilter('${g}')">${g}</button>`).join('');
+    + dates.map(d => `<button class="group-pill" data-group="${d}" onclick="setGroupFilter('${d}')">${d}</button>`).join('');
 }
 
-function setGroupFilter(g) {
-  activeGroupFilter = g;
+function setGroupFilter(d) {
+  activeGroupFilter = d;
   document.querySelectorAll('.group-pill').forEach(p => {
-    p.classList.toggle('active', p.dataset.group === (g || 'all'));
+    p.classList.toggle('active', p.dataset.group === (d || 'all'));
   });
   renderMatchesHTML();
 }
@@ -918,15 +918,15 @@ function renderMatchesHTML() {
   (STATE.resultsData || []).forEach(r => { results[r.match_id] = [r.score_home, r.score_away]; });
 
   const today = new Date().toISOString().slice(0,10);
-  const filtered = activeGroupFilter ? MATCHES.filter(m => m.groupe === `Groupe ${activeGroupFilter}`) : MATCHES;
+  const filtered = activeGroupFilter ? MATCHES.filter(m => m.date === activeGroupFilter) : MATCHES;
 
   let html = '';
-  let currentGroup = '';
+  let currentDate = '';
 
   filtered.forEach(m => {
-    if (m.groupe !== currentGroup) {
-      currentGroup = m.groupe;
-      html += `<div class="group-header">${m.groupe}</div>`;
+    if (m.date !== currentDate) {
+      currentDate = m.date;
+      html += `<div class="group-header">📅 ${m.date}</div>`;
     }
 
     const p = prono[m.id] || ['',''];
@@ -958,7 +958,7 @@ function renderMatchesHTML() {
           ${badge}
         </div>
         <div class="team right">${m.away.split(' ')[0]} <span>${m.away.split(' ').slice(1).join(' ')}</span></div>
-        <div class="match-date">📅 ${m.date}</div>
+        <div class="match-date">${m.groupe}</div>
       </div>`;
   });
 
