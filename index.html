@@ -588,6 +588,38 @@
     color: var(--or);
     margin-bottom: 1rem;
   }
+
+  .team-badge {
+    display: inline-block;
+    background: rgba(45,156,89,0.2);
+    border: 1px solid rgba(45,156,89,0.5);
+    border-radius: 2px;
+    padding: 0.2rem 0.8rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    color: var(--vert-light);
+    margin-left: 0.4rem;
+  }
+
+  .view-toggle {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+  }
+  .view-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.45rem 1.4rem;
+    border: 2px solid rgba(245,197,24,0.35);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--gris);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .view-btn.active { background: var(--or); color: var(--sombre); border-color: var(--or); }
 </style>
 </head>
 <body>
@@ -626,6 +658,11 @@
       <input type="text" id="input-phone" placeholder="ex : 06 12 34 56 78" maxlength="14">
     </div>
     <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Le téléphone sert à retrouver vos pronostics si vous revenez plus tard.</p>
+    <div class="field-group" style="margin-top:1rem">
+      <label>Nom d'équipe <span style="color:var(--gris);font-size:0.75em;letter-spacing:0">(facultatif)</span></label>
+      <input type="text" id="input-team" placeholder="ex : Les Invincibles">
+    </div>
+    <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Créez ou rejoignez une équipe pour le classement par équipes.</p>
     <div class="error-msg" id="err-msg">Erreur</div>
     <button class="btn" onclick="enterConcours()">C'est parti ! →</button>
   </div>
@@ -657,6 +694,10 @@
 <!-- ============ PAGE CLASSEMENT ============ -->
 <div id="tab-classement" class="page">
   <div class="section-title">Classement</div>
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="switchClassement('solo')">👤 Solo</button>
+    <button class="view-btn" onclick="switchClassement('equipes')">👥 Équipes</button>
+  </div>
   <div id="classement-content">
     <p style="color:var(--gris);text-align:center;padding:2rem">Le classement se mettra à jour au fur et à mesure des matchs.</p>
   </div>
@@ -804,6 +845,7 @@ const DATE_MAP = {
 let STATE = {
   currentCode: null,
   currentName: null,
+  currentTeam: null,
   adminLogged: false,
   adminPwd: 'Gravetincelle2026',
   boutiqueCode: 'GRAV2026',
@@ -813,6 +855,7 @@ let STATE = {
 };
 
 let activeGroupFilter = null;
+let classementView = 'solo';
 
 // ========== INIT (charge config depuis Supabase) ==========
 async function initApp() {
@@ -828,12 +871,14 @@ async function initApp() {
   const saved = localStorage.getItem('grav_session');
   if (saved) {
     try {
-      const { code, name } = JSON.parse(saved);
+      const { code, name, team } = JSON.parse(saved);
       STATE.currentCode = code;
       STATE.currentName = name;
+      STATE.currentTeam = team || null;
       document.getElementById('gate-box').style.display = 'none';
       document.getElementById('prono-zone').style.display = 'block';
-      document.getElementById('display-name').textContent = '👤 ' + name;
+      const teamBadge = STATE.currentTeam ? `<span class="team-badge">👥 ${STATE.currentTeam}</span>` : '';
+      document.getElementById('display-name').innerHTML = '👤 ' + name + teamBadge;
       await renderMatches();
     } catch(e) {
       localStorage.removeItem('grav_session');
@@ -857,6 +902,7 @@ async function enterConcours() {
   const code = document.getElementById('input-code').value.trim().toUpperCase();
   const name = document.getElementById('input-name').value.trim();
   const phone = document.getElementById('input-phone').value.trim().replace(/\s/g, '');
+  const team = document.getElementById('input-team').value.trim() || null;
   const err = document.getElementById('err-msg');
 
   if (code !== STATE.boutiqueCode) { err.style.display='block'; err.textContent='Code boutique incorrect. Demandez-le en boutique Gravetincelle !'; return; }
@@ -865,24 +911,26 @@ async function enterConcours() {
 
   err.style.display = 'none';
 
-  // Vérifier si ce téléphone existe déjà
   const { data: existing } = await sb.from('participants').select('*').eq('code', phone).single();
 
   if (!existing) {
-    // Nouveau participant : créer le code + participant
     await sb.from('codes').upsert({ code: phone }, { onConflict: 'code' });
-    const { error } = await sb.from('participants').insert({ code: phone, name });
+    const { error } = await sb.from('participants').insert({ code: phone, name, team_name: team });
     if (error) { err.style.display='block'; err.textContent='Erreur lors de l\'inscription. Réessayez.'; return; }
+  } else if (team && existing.team_name !== team) {
+    await sb.from('participants').update({ team_name: team }).eq('code', phone);
   }
 
   STATE.currentCode = phone;
   STATE.currentName = existing ? existing.name : name;
+  STATE.currentTeam = team || (existing ? existing.team_name : null);
 
-  localStorage.setItem('grav_session', JSON.stringify({ code: STATE.currentCode, name: STATE.currentName }));
+  localStorage.setItem('grav_session', JSON.stringify({ code: STATE.currentCode, name: STATE.currentName, team: STATE.currentTeam }));
 
   document.getElementById('gate-box').style.display = 'none';
   document.getElementById('prono-zone').style.display = 'block';
-  document.getElementById('display-name').textContent = '👤 ' + STATE.currentName;
+  const teamBadge = STATE.currentTeam ? `<span class="team-badge">👥 ${STATE.currentTeam}</span>` : '';
+  document.getElementById('display-name').innerHTML = '👤 ' + STATE.currentName + teamBadge;
 
   await renderMatches();
 }
@@ -1004,6 +1052,15 @@ function calcPoints(prono, result) {
 }
 
 // ========== CLASSEMENT ==========
+let _classData = null;
+
+function switchClassement(view) {
+  classementView = view;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  if (_classData) renderClassementHTML(_classData);
+}
+
 async function renderClassement() {
   const container = document.getElementById('classement-content');
   container.innerHTML = '<p style="color:var(--gris);text-align:center;padding:2rem">⚽ Chargement…</p>';
@@ -1019,61 +1076,100 @@ async function renderClassement() {
     const myPronos = (allPronos || []).filter(pr => pr.participant_code === p.code);
     let pts = 0;
     myPronos.forEach(pr => {
-      if (results[pr.match_id]) {
-        pts += calcPoints([pr.score_home, pr.score_away], results[pr.match_id]);
-      }
+      if (results[pr.match_id]) pts += calcPoints([pr.score_home, pr.score_away], results[pr.match_id]);
     });
-    return { name: p.name, pts };
+    return { name: p.name, pts, team: p.team_name || null };
   }).sort((a,b) => b.pts - a.pts);
 
-  if (entries.length === 0) {
-    container.innerHTML = '<p style="color:var(--gris);text-align:center;padding:2rem">Aucun participant pour le moment.</p>';
-    return;
-  }
+  _classData = { entries, results };
+  renderClassementHTML(_classData);
+}
 
-  // Podium
-  let podiumHtml = '';
-  if (entries.length >= 1) {
-    const order = entries.length >= 3 ? [1,0,2] : (entries.length === 2 ? [1,0] : [0]);
-    const classes = ['p2','p1','p3'];
-    const ranks = ['2','1','3'];
-    let podiumBlocks = ['','',''];
-    order.forEach((idx, i) => {
-      if (entries[idx]) {
-        podiumBlocks[i] = `
-          <div class="podium-block ${classes[i]}">
-            <div class="podium-rank">${ranks[i]}</div>
-            <div class="podium-name">${entries[idx].name}</div>
-            <div class="podium-pts">${entries[idx].pts} pts</div>
-          </div>`;
-      }
-    });
-    podiumHtml = `<div class="podium">${podiumBlocks.join('')}</div>`;
-  }
-
-  // Tableau
-  let tableHtml = `<table class="ranking-table"><thead>
-    <tr><th>#</th><th>Participant</th><th style="text-align:right">Points</th></tr>
-  </thead><tbody>`;
-  entries.forEach((e, i) => {
-    const top = i < STATE.nbLots;
-    const lot = top ? `<span class="lot-badge">🎁 Lot</span>` : '';
-    tableHtml += `<tr>
-      <td class="rank-num ${top?'top':''}">${i+1}</td>
-      <td>${e.name}${lot}</td>
-      <td class="pts-cell">${e.pts}</td>
-    </tr>`;
+function buildPodium(entries) {
+  if (!entries.length) return '';
+  const order = entries.length >= 3 ? [1,0,2] : (entries.length === 2 ? [1,0] : [0]);
+  const classes = ['p2','p1','p3'], ranks = ['2','1','3'];
+  let blocks = ['','',''];
+  order.forEach((idx, i) => {
+    if (entries[idx]) blocks[i] = `
+      <div class="podium-block ${classes[i]}">
+        <div class="podium-rank">${ranks[i]}</div>
+        <div class="podium-name">${entries[idx].name}</div>
+        <div class="podium-pts">${entries[idx].pts} pts</div>
+      </div>`;
   });
-  tableHtml += '</tbody></table>';
+  return `<div class="podium">${blocks.join('')}</div>`;
+}
 
+function renderClassementHTML({ entries, results }) {
+  const container = document.getElementById('classement-content');
   const playedCount = Object.keys(results).length;
-  container.innerHTML = `
-    <div class="info-box" style="margin-bottom:1.5rem">
-      <strong>${entries.length}</strong> participant(s) · <strong>${playedCount}/${MATCHES.length}</strong> match(s) joué(s) ·
-      Les <strong>${STATE.nbLots} premiers</strong> remportent un lot 🎁
-    </div>
-    ${podiumHtml}
-    ${tableHtml}`;
+
+  if (classementView === 'solo') {
+    if (!entries.length) {
+      container.innerHTML = '<p style="color:var(--gris);text-align:center;padding:2rem">Aucun participant pour le moment.</p>';
+      return;
+    }
+    let tableHtml = `<table class="ranking-table"><thead>
+      <tr><th>#</th><th>Participant</th><th style="text-align:right">Points</th></tr>
+    </thead><tbody>`;
+    entries.forEach((e, i) => {
+      const top = i < STATE.nbLots;
+      const lot = top ? `<span class="lot-badge">🎁 Lot</span>` : '';
+      const team = e.team ? `<span style="font-size:0.78rem;color:var(--vert-light);margin-left:0.4rem">👥 ${e.team}</span>` : '';
+      tableHtml += `<tr>
+        <td class="rank-num ${top?'top':''}">${i+1}</td>
+        <td>${e.name}${team}${lot}</td>
+        <td class="pts-cell">${e.pts}</td>
+      </tr>`;
+    });
+    tableHtml += '</tbody></table>';
+    container.innerHTML = `
+      <div class="info-box" style="margin-bottom:1.5rem">
+        <strong>${entries.length}</strong> participant(s) · <strong>${playedCount}/${MATCHES.length}</strong> match(s) joué(s) ·
+        Les <strong>${STATE.nbLots} premiers</strong> remportent un lot 🎁
+      </div>
+      ${buildPodium(entries)}
+      ${tableHtml}`;
+
+  } else {
+    const teamMap = {};
+    entries.forEach(e => {
+      if (!e.team) return;
+      if (!teamMap[e.team]) teamMap[e.team] = { name: e.team, members: [] };
+      teamMap[e.team].members.push(e);
+    });
+    const teams = Object.values(teamMap).map(t => {
+      const avg = t.members.reduce((s,m) => s + m.pts, 0) / t.members.length;
+      return { name: t.name, pts: Math.round(avg * 10) / 10, count: t.members.length, members: t.members };
+    }).sort((a,b) => b.pts - a.pts);
+
+    if (!teams.length) {
+      container.innerHTML = '<p style="color:var(--gris);text-align:center;padding:2rem">Aucune équipe inscrite pour le moment.</p>';
+      return;
+    }
+    let tableHtml = `<table class="ranking-table"><thead>
+      <tr><th>#</th><th>Équipe</th><th style="text-align:right">Moy. pts</th></tr>
+    </thead><tbody>`;
+    teams.forEach((t, i) => {
+      const memberList = t.members.map(m => m.name).join(', ');
+      tableHtml += `<tr>
+        <td class="rank-num ${i<3?'top':''}">${i+1}</td>
+        <td>
+          <div style="font-weight:700">${t.name}</div>
+          <div style="font-size:0.78rem;color:var(--gris)">${memberList} · ${t.count} joueur(s)</div>
+        </td>
+        <td class="pts-cell">${t.pts}</td>
+      </tr>`;
+    });
+    tableHtml += '</tbody></table>';
+    container.innerHTML = `
+      <div class="info-box" style="margin-bottom:1.5rem">
+        <strong>${teams.length}</strong> équipe(s) · Score = moyenne des points des membres
+      </div>
+      ${buildPodium(teams)}
+      ${tableHtml}`;
+  }
 }
 
 // ========== ADMIN ==========
