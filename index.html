@@ -970,11 +970,24 @@ async function renderMatches() {
   renderMatchesHTML();
 }
 
+const FILTER_TABS = [
+  { label: 'Tous', key: null },
+  { label: 'A', key: 'Groupe A' }, { label: 'B', key: 'Groupe B' }, { label: 'C', key: 'Groupe C' },
+  { label: 'D', key: 'Groupe D' }, { label: 'E', key: 'Groupe E' }, { label: 'F', key: 'Groupe F' },
+  { label: 'G', key: 'Groupe G' }, { label: 'H', key: 'Groupe H' }, { label: 'I', key: 'Groupe I' },
+  { label: 'J', key: 'Groupe J' }, { label: 'K', key: 'Groupe K' }, { label: 'L', key: 'Groupe L' },
+  { label: '16e', key: '16e de finale' },
+  { label: '8e', key: '8e de finale' },
+  { label: '1/4', key: 'Quarts de finale' },
+  { label: '1/2', key: 'Demi-finales' },
+  { label: 'Finale', key: 'Finale' },
+];
+
 function buildGroupFilter() {
-  const groups = [...new Set(MATCHES.map(m => m.groupe.replace('Groupe ','')))];
   const bar = document.getElementById('group-filter');
-  bar.innerHTML = `<button class="group-pill active" data-group="all" onclick="setGroupFilter(null)">Tous</button>`
-    + groups.map(g => `<button class="group-pill" data-group="${g}" onclick="setGroupFilter('${g}')">${g}</button>`).join('');
+  bar.innerHTML = FILTER_TABS.map(t =>
+    `<button class="group-pill${t.key === null ? ' active' : ''}" data-group="${t.key || 'all'}" onclick="setGroupFilter(${t.key ? `'${t.key}'` : 'null'})">${t.label}</button>`
+  ).join('');
 }
 
 function setGroupFilter(g) {
@@ -994,7 +1007,7 @@ function renderMatchesHTML() {
 
   const today = new Date().toISOString().slice(0,10);
   let filtered = activeGroupFilter
-    ? MATCHES.filter(m => m.groupe === `Groupe ${activeGroupFilter}`)
+    ? MATCHES.filter(m => m.groupe === activeGroupFilter)
     : [...MATCHES].sort((a,b) => (DATE_MAP[a.date] || '').localeCompare(DATE_MAP[b.date] || ''));
 
   let html = '';
