@@ -620,6 +620,54 @@
     transition: all 0.2s;
   }
   .view-btn.active { background: var(--or); color: var(--sombre); border-color: var(--or); }
+
+  select {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(245,197,24,0.3);
+    border-radius: 2px;
+    padding: 0.75rem 1rem;
+    color: var(--blanc);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    outline: none;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+  select:focus { border-color: var(--or); }
+  select option { background: #1a3a25; color: var(--blanc); }
+
+  .champion-box {
+    background: linear-gradient(135deg, rgba(245,197,24,0.12), rgba(10,31,18,0.6));
+    border: 1px solid rgba(245,197,24,0.4);
+    border-radius: 4px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+  .champion-box .champ-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--or);
+    margin-bottom: 0.2rem;
+  }
+  .champion-box .champ-team {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.06em;
+    color: var(--blanc);
+  }
+  .champion-box .champ-pts {
+    font-size: 0.78rem;
+    color: var(--gris);
+  }
 </style>
 </head>
 <body>
@@ -663,6 +711,49 @@
       <input type="text" id="input-team" placeholder="ex : Les Invincibles">
     </div>
     <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Créez ou rejoignez une équipe pour le classement par équipes.</p>
+    <div class="field-group" style="margin-top:1rem;border-top:1px solid rgba(245,197,24,0.2);padding-top:1rem">
+      <label>🏆 Votre champion du monde</label>
+      <select id="input-winner" required>
+        <option value="">— Choisissez une équipe —</option>
+        <optgroup label="Groupe A">
+          <option>Mexique</option><option>Afrique du Sud</option><option>Corée du Sud</option><option>Tchéquie</option>
+        </optgroup>
+        <optgroup label="Groupe B">
+          <option>Canada</option><option>Bosnie-Herzégovine</option><option>Qatar</option><option>Suisse</option>
+        </optgroup>
+        <optgroup label="Groupe C">
+          <option>Brésil</option><option>Maroc</option><option>Haïti</option><option>Écosse</option>
+        </optgroup>
+        <optgroup label="Groupe D">
+          <option>États-Unis</option><option>Paraguay</option><option>Australie</option><option>Türkiye</option>
+        </optgroup>
+        <optgroup label="Groupe E">
+          <option>Allemagne</option><option>Curaçao</option><option>Côte d'Ivoire</option><option>Équateur</option>
+        </optgroup>
+        <optgroup label="Groupe F">
+          <option>Pays-Bas</option><option>Japon</option><option>Suède</option><option>Tunisie</option>
+        </optgroup>
+        <optgroup label="Groupe G">
+          <option>Belgique</option><option>Égypte</option><option>Iran</option><option>Nouvelle-Zélande</option>
+        </optgroup>
+        <optgroup label="Groupe H">
+          <option>Espagne</option><option>Cabo Verde</option><option>Arabie Saoudite</option><option>Uruguay</option>
+        </optgroup>
+        <optgroup label="Groupe I">
+          <option>France</option><option>Irak</option><option>Norvège</option><option>Sénégal</option>
+        </optgroup>
+        <optgroup label="Groupe J">
+          <option>Argentine</option><option>Algérie</option><option>Autriche</option><option>Jordanie</option>
+        </optgroup>
+        <optgroup label="Groupe K">
+          <option>Portugal</option><option>RD Congo</option><option>Colombie</option><option>Ouzbékistan</option>
+        </optgroup>
+        <optgroup label="Groupe L">
+          <option>Angleterre</option><option>Croatie</option><option>Ghana</option><option>Panama</option>
+        </optgroup>
+      </select>
+    </div>
+    <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Modifiable jusqu'au 11 Juin · +5 pts si correct</p>
     <div class="error-msg" id="err-msg">Erreur</div>
     <button class="btn" onclick="enterConcours()">C'est parti ! →</button>
   </div>
@@ -677,10 +768,13 @@
       </div>
     </div>
 
+    <div id="champion-box" class="champion-box" style="display:none"></div>
+
     <div class="points-legend">
       <span><span class="dot gold"></span>Score exact = 3 pts</span>
       <span><span class="dot green"></span>Vainqueur correct = 1 pt</span>
       <span><span class="dot gray"></span>Raté = 0 pt</span>
+      <span><span class="dot gold"></span>Champion correct = 5 pts</span>
     </div>
 
     <div class="group-filter" id="group-filter"></div>
@@ -728,6 +822,28 @@
     <div id="admin-matches"></div>
     <div style="text-align:center;margin:1.5rem 0">
       <button class="btn" style="max-width:320px;margin:0 auto" onclick="saveResults()">✅ Enregistrer les résultats</button>
+    </div>
+
+    <!-- Champion du monde -->
+    <div class="section-title">Champion du Monde</div>
+    <div class="info-box">Saisissez le vainqueur après la finale pour déclencher le bonus de 5 pts.</div>
+    <div style="display:flex;gap:0.8rem;align-items:center;margin-bottom:2rem;flex-wrap:wrap">
+      <select id="admin-winner" style="flex:1;min-width:200px">
+        <option value="">— Pas encore connu —</option>
+        <optgroup label="Groupe A"><option>Mexique</option><option>Afrique du Sud</option><option>Corée du Sud</option><option>Tchéquie</option></optgroup>
+        <optgroup label="Groupe B"><option>Canada</option><option>Bosnie-Herzégovine</option><option>Qatar</option><option>Suisse</option></optgroup>
+        <optgroup label="Groupe C"><option>Brésil</option><option>Maroc</option><option>Haïti</option><option>Écosse</option></optgroup>
+        <optgroup label="Groupe D"><option>États-Unis</option><option>Paraguay</option><option>Australie</option><option>Türkiye</option></optgroup>
+        <optgroup label="Groupe E"><option>Allemagne</option><option>Curaçao</option><option>Côte d'Ivoire</option><option>Équateur</option></optgroup>
+        <optgroup label="Groupe F"><option>Pays-Bas</option><option>Japon</option><option>Suède</option><option>Tunisie</option></optgroup>
+        <optgroup label="Groupe G"><option>Belgique</option><option>Égypte</option><option>Iran</option><option>Nouvelle-Zélande</option></optgroup>
+        <optgroup label="Groupe H"><option>Espagne</option><option>Cabo Verde</option><option>Arabie Saoudite</option><option>Uruguay</option></optgroup>
+        <optgroup label="Groupe I"><option>France</option><option>Irak</option><option>Norvège</option><option>Sénégal</option></optgroup>
+        <optgroup label="Groupe J"><option>Argentine</option><option>Algérie</option><option>Autriche</option><option>Jordanie</option></optgroup>
+        <optgroup label="Groupe K"><option>Portugal</option><option>RD Congo</option><option>Colombie</option><option>Ouzbékistan</option></optgroup>
+        <optgroup label="Groupe L"><option>Angleterre</option><option>Croatie</option><option>Ghana</option><option>Panama</option></optgroup>
+      </select>
+      <button class="btn btn-sm" onclick="saveWorldCupWinner()">✅ Valider</button>
     </div>
 
     <!-- Vue participants -->
@@ -843,14 +959,18 @@ const DATE_MAP = {
   '27 Juin':'2026-06-27',
 };
 
+const CHAMPION_LOCK = '2026-06-11';
+
 let STATE = {
   currentCode: null,
   currentName: null,
   currentTeam: null,
+  currentWinner: null,
   adminLogged: false,
   adminPwd: 'Gravetincelle2026',
   boutiqueCode: 'GRAV2026',
   nbLots: 5,
+  worldCupWinner: null,
   pronoData: null,
   resultsData: null,
 };
@@ -866,22 +986,25 @@ async function initApp() {
       if (row.key === 'admin_pwd') STATE.adminPwd = row.value;
       if (row.key === 'nb_lots') STATE.nbLots = parseInt(row.value);
       if (row.key === 'boutique_code') STATE.boutiqueCode = row.value;
+      if (row.key === 'world_cup_winner' && row.value) STATE.worldCupWinner = row.value;
     });
   }
 
   const saved = localStorage.getItem('grav_session');
   if (saved) {
     try {
-      const { code, name, team } = JSON.parse(saved);
-      const { data: check } = await sb.from('participants').select('code').eq('code', code).single();
+      const { code, name, team, winner } = JSON.parse(saved);
+      const { data: check } = await sb.from('participants').select('code,winner_prediction').eq('code', code).single();
       if (!check) { localStorage.removeItem('grav_session'); return; }
       STATE.currentCode = code;
       STATE.currentName = name;
       STATE.currentTeam = team || null;
+      STATE.currentWinner = winner || check.winner_prediction || null;
       document.getElementById('gate-box').style.display = 'none';
       document.getElementById('prono-zone').style.display = 'block';
       const teamBadge = STATE.currentTeam ? `<span class="team-badge">👥 ${STATE.currentTeam}</span>` : '';
       document.getElementById('display-name').innerHTML = '👤 ' + name + teamBadge;
+      renderChampionBox();
       await renderMatches();
     } catch(e) {
       localStorage.removeItem('grav_session');
@@ -896,12 +1019,63 @@ function logout() {
   STATE.currentCode = null;
   STATE.currentName = null;
   STATE.currentTeam = null;
+  STATE.currentWinner = null;
   document.getElementById('prono-zone').style.display = 'none';
   document.getElementById('gate-box').style.display = 'block';
   document.getElementById('input-code').value = '';
   document.getElementById('input-name').value = '';
   document.getElementById('input-phone').value = '';
   document.getElementById('input-team').value = '';
+}
+
+// ========== CHAMPION DU MONDE ==========
+function renderChampionBox() {
+  const box = document.getElementById('champion-box');
+  if (!box) return;
+  const locked = new Date().toISOString().slice(0,10) >= CHAMPION_LOCK;
+  const w = STATE.currentWinner;
+  const correct = STATE.worldCupWinner && w && w === STATE.worldCupWinner;
+  const wrong   = STATE.worldCupWinner && w && w !== STATE.worldCupWinner;
+
+  let changeHtml = '';
+  if (!locked) {
+    const srcSel = document.getElementById('input-winner');
+    const allOpts = srcSel
+      ? [...srcSel.options].filter(o => o.value)
+          .map(o => `<option value="${o.value}"${o.value === w ? ' selected' : ''}>${o.value}</option>`)
+          .join('')
+      : '';
+    changeHtml = `
+      <div style="margin-top:0.8rem;display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">
+        <select id="champ-update-sel" style="flex:1;min-width:160px;padding:0.4rem 0.6rem;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:var(--blanc)">
+          <option value="">Changer mon choix…</option>
+          ${allOpts}
+        </select>
+        <button class="btn btn-sm" onclick="saveWinnerPrediction()">Mettre à jour</button>
+      </div>`;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = `
+    <div class="champ-label">🏆 Mon pronostic Champion du Monde</div>
+    <div class="champ-team">${w ? w + (correct ? ' 🏆' : wrong ? ' ❌' : '') : '<span style="opacity:0.5">Non renseigné</span>'}</div>
+    ${correct ? '<div class="champ-pts">+5 pts bonus !</div>' : ''}
+    ${changeHtml}
+  `;
+}
+
+async function saveWinnerPrediction() {
+  const sel = document.getElementById('champ-update-sel');
+  if (!sel || !sel.value) return;
+  const newWinner = sel.value;
+  const { error } = await sb.from('participants').update({ winner_prediction: newWinner }).eq('code', STATE.currentCode);
+  if (error) { showToast('Erreur : ' + error.message); return; }
+  STATE.currentWinner = newWinner;
+  const saved = JSON.parse(localStorage.getItem('grav_session') || '{}');
+  saved.winner = newWinner;
+  localStorage.setItem('grav_session', JSON.stringify(saved));
+  renderChampionBox();
+  showToast('Pronostic champion mis à jour ✅');
 }
 
 // ========== NAVIGATION ==========
@@ -920,11 +1094,13 @@ async function enterConcours() {
   const name = document.getElementById('input-name').value.trim();
   const phone = document.getElementById('input-phone').value.trim().replace(/\s/g, '');
   const team = document.getElementById('input-team').value.trim() || null;
+  const winner = document.getElementById('input-winner').value;
   const err = document.getElementById('err-msg');
 
   if (code !== STATE.boutiqueCode) { err.style.display='block'; err.textContent='Code boutique incorrect. Demandez-le en boutique Gravetincelle !'; return; }
   if (!name) { err.style.display='block'; err.textContent='Entrez votre prénom.'; return; }
   if (phone.length < 8) { err.style.display='block'; err.textContent='Entrez un numéro de téléphone valide.'; return; }
+  if (!winner) { err.style.display='block'; err.textContent='Choisissez votre équipe championne du monde.'; return; }
 
   err.style.display = 'none';
 
@@ -932,32 +1108,36 @@ async function enterConcours() {
 
   if (!existing) {
     await sb.from('codes').upsert({ code: phone }, { onConflict: 'code' });
-    let insertData = { code: phone, name };
+    let insertData = { code: phone, name, winner_prediction: winner };
     if (team) insertData.team_name = team;
     const { error } = await sb.from('participants').insert(insertData);
     if (error) {
-      if (team && error.message && error.message.includes('team_name')) {
-        const { error: e2 } = await sb.from('participants').insert({ code: phone, name });
-        if (e2) { err.style.display='block'; err.textContent='Erreur : ' + e2.message; return; }
-      } else {
-        err.style.display='block'; err.textContent='Erreur : ' + error.message; return;
-      }
+      const { error: e2 } = await sb.from('participants').insert({ code: phone, name });
+      if (e2) { err.style.display='block'; err.textContent='Erreur : ' + e2.message; return; }
     }
-  } else if (team && existing.team_name !== team) {
-    await sb.from('participants').update({ team_name: team }).eq('code', phone);
+  } else {
+    const updates = {};
+    if (team && existing.team_name !== team) updates.team_name = team;
+    if (winner && new Date().toISOString().slice(0,10) < CHAMPION_LOCK) updates.winner_prediction = winner;
+    if (Object.keys(updates).length) await sb.from('participants').update(updates).eq('code', phone);
   }
 
   STATE.currentCode = phone;
   STATE.currentName = existing ? existing.name : name;
   STATE.currentTeam = team || (existing ? existing.team_name : null);
+  STATE.currentWinner = winner || (existing ? existing.winner_prediction : null);
 
-  localStorage.setItem('grav_session', JSON.stringify({ code: STATE.currentCode, name: STATE.currentName, team: STATE.currentTeam }));
+  localStorage.setItem('grav_session', JSON.stringify({
+    code: STATE.currentCode, name: STATE.currentName,
+    team: STATE.currentTeam, winner: STATE.currentWinner,
+  }));
 
   document.getElementById('gate-box').style.display = 'none';
   document.getElementById('prono-zone').style.display = 'block';
   const teamBadge = STATE.currentTeam ? `<span class="team-badge">👥 ${STATE.currentTeam}</span>` : '';
   document.getElementById('display-name').innerHTML = '👤 ' + STATE.currentName + teamBadge;
 
+  renderChampionBox();
   await renderMatches();
 }
 
@@ -1117,6 +1297,7 @@ async function renderClassement() {
     myPronos.forEach(pr => {
       if (results[pr.match_id]) pts += calcPoints([pr.score_home, pr.score_away], results[pr.match_id]);
     });
+    if (STATE.worldCupWinner && p.winner_prediction === STATE.worldCupWinner) pts += 5;
     return { name: p.name, pts, team: p.team_name || null };
   }).sort((a,b) => b.pts - a.pts);
 
@@ -1211,6 +1392,15 @@ function renderClassementHTML({ entries, results }) {
   }
 }
 
+async function saveWorldCupWinner() {
+  const val = document.getElementById('admin-winner').value;
+  const { error } = await sb.from('admin_config').upsert({ key: 'world_cup_winner', value: val }, { onConflict: 'key' });
+  if (error) { showToast('Erreur : ' + error.message); return; }
+  STATE.worldCupWinner = val || null;
+  renderChampionBox();
+  showToast('Champion du monde enregistré ✅');
+}
+
 // ========== ADMIN ==========
 function adminLogin() {
   const pwd = document.getElementById('admin-pwd').value;
@@ -1294,7 +1484,8 @@ async function renderAdminParticipants() {
         pts += calcPoints([pr.score_home, pr.score_away], results[pr.match_id]);
       }
     });
-    return { code: p.code, name: p.name, pts };
+    if (STATE.worldCupWinner && p.winner_prediction === STATE.worldCupWinner) pts += 5;
+    return { code: p.code, name: p.name, pts, winner: p.winner_prediction || '–' };
   }).sort((a,b) => b.pts - a.pts);
 
   if (entries.length === 0) {
@@ -1303,14 +1494,16 @@ async function renderAdminParticipants() {
   }
 
   let html = `<table class="ranking-table"><thead>
-    <tr><th>#</th><th>Prénom</th><th>Téléphone</th><th style="text-align:right">Points</th></tr>
+    <tr><th>#</th><th>Prénom</th><th>Téléphone</th><th>Champion</th><th style="text-align:right">Points</th></tr>
   </thead><tbody>`;
   entries.forEach((e,i) => {
     const lot = i < STATE.nbLots ? `<span class="lot-badge">🎁</span>` : '';
+    const champOk = STATE.worldCupWinner && e.winner === STATE.worldCupWinner;
     html += `<tr>
       <td class="rank-num ${i<STATE.nbLots?'top':''}">${i+1}</td>
       <td>${e.name} ${lot}</td>
       <td style="color:var(--gris);font-size:0.85rem">${e.code}</td>
+      <td style="font-size:0.82rem;color:${champOk ? 'var(--or)' : 'var(--gris)'}">${e.winner}${champOk ? ' 🏆' : ''}</td>
       <td class="pts-cell">${e.pts}</td>
     </tr>`;
   });
