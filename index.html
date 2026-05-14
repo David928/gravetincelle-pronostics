@@ -726,6 +726,19 @@
 <!-- ============ PAGE JOUER ============ -->
 <div id="tab-accueil" class="page active">
 
+  <!-- Bannière installation PWA -->
+  <div id="install-banner" style="display:none;background:rgba(245,197,24,0.08);border:1px solid rgba(245,197,24,0.35);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+      <strong style="color:var(--or)">📱 Installez l'app sur votre téléphone</strong>
+      <button onclick="dismissInstallBanner()" style="background:none;border:none;color:var(--gris);cursor:pointer;font-size:1.1rem;padding:0.1rem 0.4rem">✕</button>
+    </div>
+    <div style="font-size:0.82rem;color:var(--gris);line-height:1.9">
+      <span style="color:var(--blanc);font-weight:600">iPhone (Safari) :</span> bouton Partager □↑ → "Sur l'écran d'accueil"<br>
+      <span style="color:var(--blanc);font-weight:600">Android (Chrome) :</span> menu ⋮ → "Ajouter à l'écran d'accueil"
+    </div>
+    <p style="font-size:0.75rem;color:var(--gris);margin-top:0.4rem;opacity:0.7">Après installation, reconnectez-vous avec votre numéro de téléphone.</p>
+  </div>
+
   <!-- GATE: saisie du code -->
   <div id="gate-box" class="welcome-box">
     <div class="trophy">⚽</div>
@@ -828,18 +841,6 @@
         <div class="participant-name" id="display-name">👤 …</div>
         <button onclick="logout()" style="background:none;border:none;color:var(--gris);font-size:0.75rem;cursor:pointer;opacity:0.6;padding:0.2rem 0.4rem" title="Se déconnecter">✕</button>
       </div>
-    </div>
-
-    <div id="install-banner" style="display:none;background:rgba(245,197,24,0.08);border:1px solid rgba(245,197,24,0.35);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
-        <strong style="color:var(--or)">📱 Installez l'app sur votre téléphone</strong>
-        <button onclick="dismissInstallBanner()" style="background:none;border:none;color:var(--gris);cursor:pointer;font-size:1.1rem;padding:0.1rem 0.4rem">✕</button>
-      </div>
-      <div style="font-size:0.82rem;color:var(--gris);line-height:1.9">
-        <span style="color:var(--blanc);font-weight:600">iPhone (Safari) :</span> bouton Partager □↑ → "Sur l'écran d'accueil"<br>
-        <span style="color:var(--blanc);font-weight:600">Android (Chrome) :</span> menu ⋮ → "Ajouter à l'écran d'accueil"
-      </div>
-      <p style="font-size:0.75rem;color:var(--gris);margin-top:0.4rem;opacity:0.7">Après installation, reconnectez-vous simplement avec votre numéro de téléphone.</p>
     </div>
 
     <div id="champion-box" class="champion-box" style="display:none"></div>
@@ -1154,6 +1155,7 @@ async function exportCSV() {
 // ========== INIT (charge config depuis Supabase) ==========
 async function initApp() {
   startCountdown();
+  showInstallBanner();
   const { data } = await sb.from('admin_config').select('*');
   if (data) {
     data.forEach(row => {
