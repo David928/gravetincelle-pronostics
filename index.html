@@ -707,10 +707,24 @@
     </div>
     <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Le téléphone sert à retrouver vos pronostics si vous revenez plus tard.</p>
     <div class="field-group" style="margin-top:1rem">
-      <label>Nom d'équipe <span style="color:var(--gris);font-size:0.75em;letter-spacing:0">(facultatif)</span></label>
+      <label>Équipe <span style="color:var(--gris);font-size:0.75em;letter-spacing:0">(facultatif)</span></label>
+      <select id="input-team-select" onchange="onTeamSelectChange(this)">
+        <option value="">— Pas d'équipe —</option>
+        <option value="GravEtincelle">GravEtincelle</option>
+        <option value="Domimark kids">Domimark kids</option>
+        <option value="Un thé pour soi">Un thé pour soi</option>
+        <option value="Les senteurs de la sensée">Les senteurs de la sensée</option>
+        <option value="Aigiullez moi">Aigiullez moi</option>
+        <option value="Personnalis'art">Personnalis'art</option>
+        <option value="Les juments de Julie">Les juments de Julie</option>
+        <option value="__autre__">Autre équipe…</option>
+      </select>
+    </div>
+    <div class="field-group" id="team-custom-wrap" style="display:none">
+      <label>Nom de votre équipe</label>
       <input type="text" id="input-team" placeholder="ex : Les Invincibles">
     </div>
-    <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Créez ou rejoignez une équipe pour le classement par équipes.</p>
+    <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Rejoignez une équipe ou créez la vôtre pour le classement par équipes.</p>
     <div class="field-group" style="margin-top:1rem;border-top:1px solid rgba(245,197,24,0.2);padding-top:1rem">
       <label>🏆 Votre champion du monde</label>
       <select id="input-winner" required>
@@ -1025,7 +1039,9 @@ function logout() {
   document.getElementById('input-code').value = '';
   document.getElementById('input-name').value = '';
   document.getElementById('input-phone').value = '';
+  document.getElementById('input-team-select').value = '';
   document.getElementById('input-team').value = '';
+  document.getElementById('team-custom-wrap').style.display = 'none';
 }
 
 // ========== CHAMPION DU MONDE ==========
@@ -1078,6 +1094,12 @@ async function saveWinnerPrediction() {
   showToast('Pronostic champion mis à jour ✅');
 }
 
+function onTeamSelectChange(sel) {
+  const wrap = document.getElementById('team-custom-wrap');
+  wrap.style.display = sel.value === '__autre__' ? 'block' : 'none';
+  if (sel.value !== '__autre__') document.getElementById('input-team').value = '';
+}
+
 // ========== NAVIGATION ==========
 function showTab(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1093,7 +1115,10 @@ async function enterConcours() {
   const code = document.getElementById('input-code').value.trim().toUpperCase();
   const name = document.getElementById('input-name').value.trim();
   const phone = document.getElementById('input-phone').value.trim().replace(/\s/g, '');
-  const team = document.getElementById('input-team').value.trim() || null;
+  const teamSel = document.getElementById('input-team-select').value;
+  const team = (teamSel === '__autre__'
+    ? document.getElementById('input-team').value.trim()
+    : teamSel) || null;
   const winner = document.getElementById('input-winner').value;
   const err = document.getElementById('err-msg');
 
