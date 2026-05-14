@@ -214,53 +214,55 @@
 
 /* ---- INSTALL ---- */
 .gc-install {
-  background: #f8f8f8;
-  border-radius: 14px;
-  padding: 1.8em;
-  margin-bottom: 1.5em;
+  background: linear-gradient(135deg, #730202, #c45e10);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 2em;
+  color: #fff;
 }
-.gc-install h3 {
+.gc-install-top {
+  padding: 1.4em 1.8em 1em;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+.gc-install-top h3 {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 1.2em;
-  font-weight: 700;
+  font-size: 1.4em;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #111;
-  text-align: center;
-  margin-bottom: 0.4em;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.2em;
 }
-.gc-install .gc-install-sub {
-  text-align: center;
-  font-size: 0.85em;
-  color: #888;
-  margin-bottom: 1.3em;
-}
+.gc-install-top p { font-size: 0.88em; opacity: 0.9; }
+.gc-install-top-icon { font-size: 2.2em; flex-shrink: 0; }
 .gc-install-cols {
   display: flex;
-  gap: 1.5em;
+  gap: 1em;
   flex-wrap: wrap;
+  padding: 0 1.2em 1.4em;
 }
 .gc-install-col {
   flex: 1;
   min-width: 200px;
-  background: #fff;
+  background: rgba(255,255,255,0.12);
   border-radius: 10px;
   padding: 1em 1.2em;
-  border: 1px solid #eee;
+  border: 1px solid rgba(255,255,255,0.2);
 }
 .gc-install-col strong {
   display: block;
-  font-size: 0.82em;
-  color: #e57e26;
+  font-size: 0.85em;
+  color: #ffe0a0;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   font-weight: 700;
   margin-bottom: 0.6em;
 }
 .gc-install-col ol {
   padding-left: 1.1em;
   font-size: 0.85em;
-  color: #444;
+  color: rgba(255,255,255,0.88);
   line-height: 1.9;
 }
 
@@ -420,38 +422,43 @@ a.gc-pme-card:hover {
     </div>
   </div>
 
+  <!-- INSTALL -->
+  <div class="gc-install">
+    <div class="gc-install-top">
+      <div class="gc-install-top-icon">&#128241;</div>
+      <div>
+        <h3>Installez l&apos;app sur votre t&eacute;l&eacute;phone !</h3>
+        <p>Acc&eacute;dez au concours en un clic depuis votre &eacute;cran d&apos;accueil &mdash; comme une vraie application, sans passer par le navigateur.</p>
+      </div>
+    </div>
+    <div class="gc-install-cols">
+      <div class="gc-install-col">
+        <strong>&#63743; iPhone &mdash; Safari uniquement</strong>
+        <ol>
+          <li>Ouvrez le lien dans <b>Safari</b></li>
+          <li>Appuyez sur le bouton Partager &#9633;&#8679;</li>
+          <li>Choisissez &laquo;&nbsp;<b>Sur l&apos;&eacute;cran d&apos;accueil</b>&nbsp;&raquo;</li>
+          <li>Appuyez sur &laquo;&nbsp;Ajouter&nbsp;&raquo;</li>
+        </ol>
+      </div>
+      <div class="gc-install-col">
+        <strong>&#9685; Android &mdash; Chrome uniquement</strong>
+        <ol>
+          <li>Ouvrez le lien dans <b>Chrome</b></li>
+          <li>Appuyez sur <b>&#8942;</b> en haut &agrave; droite</li>
+          <li>Choisissez &laquo;&nbsp;<b>Ajouter &agrave; l&apos;&eacute;cran d&apos;accueil</b>&nbsp;&raquo;</li>
+          <li>Appuyez sur &laquo;&nbsp;Installer&nbsp;&raquo;</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
   <!-- CTA -->
   <div class="gc-cta-section">
     <a class="gc-cta" href="https://pronostics.gravetincelle.com" target="_blank" rel="noopener">
       Participer au concours &rarr;
     </a>
-    <p class="gc-cta-note">S&apos;ouvre dans votre navigateur &middot; Gratuit &middot; Sans t&eacute;l&eacute;chargement</p>
-  </div>
-
-  <!-- INSTALL -->
-  <div class="gc-install">
-    <h3>&#128241; Installez l&apos;appli sur votre t&eacute;l&eacute;phone</h3>
-    <p class="gc-install-sub">Ajoutez le concours sur votre &eacute;cran d&apos;accueil pour y acc&eacute;der facilement, comme une vraie application.</p>
-    <div class="gc-install-cols">
-      <div class="gc-install-col">
-        <strong>iPhone &mdash; Safari</strong>
-        <ol>
-          <li>Ouvrez le lien dans Safari</li>
-          <li>Appuyez sur le bouton Partager &#9633;&#8679;</li>
-          <li>Choisissez &laquo;&nbsp;Sur l&apos;&eacute;cran d&apos;accueil&nbsp;&raquo;</li>
-          <li>Appuyez sur &laquo;&nbsp;Ajouter&nbsp;&raquo;</li>
-        </ol>
-      </div>
-      <div class="gc-install-col">
-        <strong>Android &mdash; Chrome</strong>
-        <ol>
-          <li>Ouvrez le lien dans Chrome</li>
-          <li>Appuyez sur les 3 points &#8942; en haut &agrave; droite</li>
-          <li>Choisissez &laquo;&nbsp;Ajouter &agrave; l&apos;&eacute;cran d&apos;accueil&nbsp;&raquo;</li>
-          <li>Appuyez sur &laquo;&nbsp;Installer&nbsp;&raquo;</li>
-        </ol>
-      </div>
-    </div>
+    <p class="gc-cta-note">Gratuit &middot; Sans t&eacute;l&eacute;chargement &middot; Installez-le ensuite sur votre &eacute;cran d&apos;accueil</p>
   </div>
 
   <!-- FOOTER INFO -->
