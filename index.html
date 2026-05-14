@@ -1381,7 +1381,7 @@ function renderClassementHTML({ entries, results }) {
       ${buildPodium(entries)}
       ${tableHtml}`;
 
-  } else {
+  } else if (classementView === 'equipes') {
     const teamMap = {};
     entries.forEach(e => {
       if (!e.team) return;
