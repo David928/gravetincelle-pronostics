@@ -806,6 +806,7 @@
   <div class="view-toggle">
     <button class="view-btn active" onclick="switchClassement('solo')">👤 Solo</button>
     <button class="view-btn" onclick="switchClassement('equipes')">👥 Équipes</button>
+    <button class="view-btn" id="btn-monequipe" style="display:none" onclick="switchClassement('monequipe')">⚡ Mon équipe</button>
   </div>
   <div id="classement-content">
     <p style="color:var(--gris);text-align:center;padding:2rem">Le classement se mettra à jour au fur et à mesure des matchs.</p>
@@ -1309,6 +1310,9 @@ async function renderClassement() {
   const container = document.getElementById('classement-content');
   container.innerHTML = '<p style="color:var(--gris);text-align:center;padding:2rem">⚽ Chargement…</p>';
 
+  const btnEquipe = document.getElementById('btn-monequipe');
+  if (btnEquipe) btnEquipe.style.display = STATE.currentTeam ? 'inline-flex' : 'none';
+
   const { data: participants } = await sb.from('participants').select('*');
   const { data: allPronos } = await sb.from('pronostics').select('*');
   const { data: resultsData } = await sb.from('results').select('*');
@@ -1413,6 +1417,37 @@ function renderClassementHTML({ entries, results }) {
         <strong>${teams.length}</strong> équipe(s) · Score = moyenne des points des membres
       </div>
       ${buildPodium(teams)}
+      ${tableHtml}`;
+
+  } else {
+    const myTeam = STATE.currentTeam;
+    if (!myTeam) {
+      container.innerHTML = '<p style="color:var(--gris);text-align:center;padding:2rem">Vous n\'êtes pas dans une équipe.</p>';
+      return;
+    }
+    const members = entries.filter(e => e.team === myTeam);
+    if (!members.length) {
+      container.innerHTML = '<p style="color:var(--gris);text-align:center;padding:2rem">Aucun membre dans votre équipe pour le moment.</p>';
+      return;
+    }
+    const avg = Math.round(members.reduce((s,m) => s + m.pts, 0) / members.length * 10) / 10;
+    let tableHtml = `<table class="ranking-table"><thead>
+      <tr><th>#</th><th>Membre</th><th style="text-align:right">Points</th></tr>
+    </thead><tbody>`;
+    members.forEach((e, i) => {
+      const isMe = e.name === STATE.currentName;
+      tableHtml += `<tr${isMe ? ' style="background:rgba(245,197,24,0.08)"' : ''}>
+        <td class="rank-num ${i===0?'top':''}">${i+1}</td>
+        <td>${e.name}${isMe ? ' <span style="font-size:0.75rem;color:var(--or)">● vous</span>' : ''}</td>
+        <td class="pts-cell">${e.pts}</td>
+      </tr>`;
+    });
+    tableHtml += '</tbody></table>';
+    container.innerHTML = `
+      <div class="info-box" style="margin-bottom:1.5rem">
+        Équipe <strong>${myTeam}</strong> · <strong>${members.length}</strong> membre(s) · Moyenne <strong>${avg} pts</strong>
+      </div>
+      ${buildPodium(members)}
       ${tableHtml}`;
   }
 }
