@@ -739,6 +739,11 @@
     <p style="font-size:0.75rem;color:var(--gris);margin-top:0.4rem;opacity:0.7">Après installation, reconnectez-vous avec votre numéro de téléphone.</p>
   </div>
 
+  <!-- Hint classement -->
+  <div id="classement-hint" style="text-align:center;margin-bottom:0.8rem;font-size:0.82rem;color:var(--gris)">
+    👀 Consultez le <button onclick="document.querySelectorAll('.tab-btn')[1].click()" style="background:none;border:none;color:var(--or);cursor:pointer;font-size:0.82rem;text-decoration:underline;padding:0">🏆 Classement</button> sans vous inscrire.
+  </div>
+
   <!-- GATE: saisie du code -->
   <div id="gate-box" class="welcome-box">
     <div class="trophy">⚽</div>
@@ -1087,6 +1092,8 @@ async function quickReconnect() {
     code: STATE.currentCode, name: STATE.currentName,
     team: STATE.currentTeam, winner: STATE.currentWinner,
   }));
+  const hint = document.getElementById('classement-hint');
+  if (hint) hint.style.display = 'none';
   document.getElementById('gate-box').style.display = 'none';
   document.getElementById('prono-zone').style.display = 'block';
   const teamBadge = STATE.currentTeam ? `<span class="team-badge">👥 ${STATE.currentTeam}</span>` : '';
@@ -1176,6 +1183,8 @@ async function initApp() {
       STATE.currentName = name;
       STATE.currentTeam = team || null;
       STATE.currentWinner = winner || check.winner_prediction || null;
+      const hint2 = document.getElementById('classement-hint');
+      if (hint2) hint2.style.display = 'none';
       document.getElementById('gate-box').style.display = 'none';
       document.getElementById('prono-zone').style.display = 'block';
       const teamBadge = STATE.currentTeam ? `<span class="team-badge">👥 ${STATE.currentTeam}</span>` : '';
@@ -1322,6 +1331,8 @@ async function enterConcours() {
     team: STATE.currentTeam, winner: STATE.currentWinner,
   }));
 
+  const hint3 = document.getElementById('classement-hint');
+  if (hint3) hint3.style.display = 'none';
   document.getElementById('gate-box').style.display = 'none';
   document.getElementById('prono-zone').style.display = 'block';
   const teamBadge = STATE.currentTeam ? `<span class="team-badge">👥 ${STATE.currentTeam}</span>` : '';
@@ -1384,10 +1395,20 @@ function renderMatchesHTML() {
   let html = '';
   let currentDate = '';
 
+  const dateCounts = {};
+  if (!activeGroupFilter) {
+    filtered.forEach(m => { dateCounts[m.date] = (dateCounts[m.date] || 0) + 1; });
+  }
+
   filtered.forEach(m => {
     if (m.date !== currentDate) {
       currentDate = m.date;
-      html += `<div class="group-header">📅 ${m.date}</div>`;
+      if (activeGroupFilter) {
+        html += `<div class="group-header">📅 ${m.date}</div>`;
+      } else {
+        const count = dateCounts[m.date];
+        html += `<div class="group-header">📅 ${m.date} <span style="font-size:0.75rem;opacity:0.55;font-weight:normal;letter-spacing:0">${count} match${count > 1 ? 's' : ''}</span></div>`;
+      }
     }
 
     const p = prono[m.id] || ['',''];
