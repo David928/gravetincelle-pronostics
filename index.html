@@ -532,6 +532,44 @@
 
   .info-box strong { color: var(--or); }
 
+  /* ---- COUNTDOWN ---- */
+  .countdown {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 1.2rem 0;
+    flex-wrap: wrap;
+  }
+  .countdown-unit {
+    background: rgba(245,197,24,0.1);
+    border: 1px solid rgba(245,197,24,0.3);
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    text-align: center;
+    min-width: 64px;
+  }
+  .countdown-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--or);
+    line-height: 1;
+    display: block;
+  }
+  .countdown-label {
+    font-size: 0.65rem;
+    color: var(--gris);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .countdown-done {
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    color: var(--or);
+    padding: 0.6rem;
+    letter-spacing: 0.05em;
+  }
+
   /* ---- POINTS LEGEND ---- */
   .points-legend {
     display: flex;
@@ -693,6 +731,7 @@
     <div class="trophy">⚽</div>
     <h2>Participez au concours !</h2>
     <p>Entrez le <strong style="color:var(--or)">code boutique</strong> reçu chez Gravetincelle, puis inscrivez-vous pour pronostiquer les matchs de la Coupe du Monde !</p>
+    <div id="countdown-box"></div>
     <div class="field-group">
       <label>Code boutique</label>
       <input type="text" id="input-code" placeholder="Entrez le code…" style="text-transform:uppercase">
@@ -862,7 +901,10 @@
     </div>
 
     <!-- Vue participants -->
-    <div class="section-title">Participants</div>
+    <div class="section-title" style="display:flex;align-items:center;justify-content:space-between">
+      <span>Participants</span>
+      <button class="btn btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
     <div id="admin-participants"></div>
 
   </div>
@@ -993,8 +1035,65 @@ let STATE = {
 let activeGroupFilter = null;
 let classementView = 'solo';
 
+// ========== COMPTE À REBOURS ==========
+function startCountdown() {
+  const target = new Date('2026-06-11T00:00:00').getTime();
+  const box = document.getElementById('countdown-box');
+  if (!box) return;
+
+  function tick() {
+    const now = Date.now();
+    const diff = target - now;
+    if (diff <= 0) {
+      box.innerHTML = '<div class="countdown-done">⚽ Le tournoi a commencé !</div>';
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    box.innerHTML = `<div class="countdown">
+      <div class="countdown-unit"><span class="countdown-val">${d}</span><span class="countdown-label">Jours</span></div>
+      <div class="countdown-unit"><span class="countdown-val">${String(h).padStart(2,'0')}</span><span class="countdown-label">Heures</span></div>
+      <div class="countdown-unit"><span class="countdown-val">${String(m).padStart(2,'0')}</span><span class="countdown-label">Min</span></div>
+      <div class="countdown-unit"><span class="countdown-val">${String(s).padStart(2,'0')}</span><span class="countdown-label">Sec</span></div>
+    </div>`;
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ========== EXPORT CSV ==========
+async function exportCSV() {
+  const { data: participants } = await sb.from('participants').select('*');
+  const { data: allPronos }   = await sb.from('pronostics').select('*');
+  const { data: resultsData } = await sb.from('results').select('*');
+
+  const results = {};
+  (resultsData || []).forEach(r => { results[r.match_id] = [r.score_home, r.score_away]; });
+
+  const rows = (participants || []).map(p => {
+    const myPronos = (allPronos || []).filter(pr => pr.participant_code === p.code);
+    let pts = 0;
+    myPronos.forEach(pr => {
+      if (results[pr.match_id]) pts += calcPoints([pr.score_home, pr.score_away], results[pr.match_id]);
+    });
+    if (STATE.worldCupWinner && p.winner_prediction === STATE.worldCupWinner) pts += 5;
+    return [pts, p.name, p.code, p.team_name || '', p.winner_prediction || ''];
+  }).sort((a,b) => b[0] - a[0]);
+
+  const header = ['Rang','Prénom','Téléphone','Équipe','Pronostic Champion','Points'];
+  const csv = [header, ...rows.map((r,i) => [i+1, ...r])].map(r => r.join(';')).join('\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'classement_grav2026.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ========== INIT (charge config depuis Supabase) ==========
 async function initApp() {
+  startCountdown();
   const { data } = await sb.from('admin_config').select('*');
   if (data) {
     data.forEach(row => {
