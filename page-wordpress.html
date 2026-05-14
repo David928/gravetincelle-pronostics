@@ -1,0 +1,456 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap');
+
+.gc-wrap * { box-sizing: border-box; margin: 0; padding: 0; }
+
+.gc-wrap {
+  font-family: 'Barlow', sans-serif;
+  color: #222;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ---- HERO ---- */
+.gc-hero {
+  background: linear-gradient(135deg, #730202 0%, #e57e26 100%);
+  border-radius: 16px;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+}
+.gc-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg, transparent, transparent 40px,
+    rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 80px
+  );
+}
+.gc-hero-label {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 50px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.3rem 1.1rem;
+  margin-bottom: 1.2rem;
+  position: relative;
+}
+.gc-hero h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  position: relative;
+}
+.gc-hero p {
+  font-size: 1.05rem;
+  opacity: 0.9;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+  position: relative;
+}
+
+/* ---- CODE ---- */
+.gc-code-section {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+.gc-code-section p {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+.gc-code-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: #fff;
+  border: 2px solid #e57e26;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 24px rgba(232,130,26,0.15);
+}
+.gc-code-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: #730202;
+}
+.gc-code-copy {
+  background: #e57e26;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.2s;
+}
+.gc-code-copy:hover { background: #730202; }
+
+/* ---- STEPS ---- */
+.gc-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.gc-step {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 14px;
+  padding: 1.5rem 1.2rem;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.gc-step:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(184,49,10,0.12);
+}
+.gc-step-num {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #730202, #e57e26);
+  color: #fff;
+  border-radius: 50%;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.8rem;
+}
+.gc-step strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 0.35rem;
+}
+.gc-step p {
+  font-size: 0.84rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* ---- EQUIPES ---- */
+.gc-team-box {
+  background: linear-gradient(135deg, #fff3ee, #fff);
+  border: 1px solid #f5c09a;
+  border-left: 4px solid #e57e26;
+  border-radius: 12px;
+  padding: 1.3rem 1.5rem;
+  margin-bottom: 2.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.gc-team-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+.gc-team-box h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #730202;
+  margin-bottom: 0.3rem;
+}
+.gc-team-box p {
+  font-size: 0.88rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* ---- CTA ---- */
+.gc-cta-section {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+.gc-cta {
+  display: inline-block;
+  background: linear-gradient(135deg, #730202, #e57e26);
+  color: #fff !important;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1rem 3rem;
+  border-radius: 50px;
+  text-decoration: none !important;
+  box-shadow: 0 6px 24px rgba(184,49,10,0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.gc-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 32px rgba(184,49,10,0.45);
+}
+.gc-cta-note {
+  margin-top: 0.8rem;
+  font-size: 0.82rem;
+  color: #999;
+}
+
+/* ---- INSTALL ---- */
+.gc-install {
+  background: #f8f8f8;
+  border-radius: 14px;
+  padding: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+.gc-install h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #111;
+  text-align: center;
+  margin-bottom: 0.4rem;
+}
+.gc-install .gc-install-sub {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 1.3rem;
+}
+.gc-install-cols {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.gc-install-col {
+  flex: 1;
+  min-width: 200px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  border: 1px solid #eee;
+}
+.gc-install-col strong {
+  display: block;
+  font-size: 0.82rem;
+  color: #e57e26;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+.gc-install-col ol {
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  color: #444;
+  line-height: 1.9;
+}
+
+/* ---- PME SECTION ---- */
+.gc-pme-section {
+  margin-bottom: 2.5rem;
+}
+.gc-pme-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #730202, #e57e26);
+  border-radius: 14px 14px 0 0;
+  padding: 1.2rem 1.5rem;
+  color: #fff;
+}
+.gc-pme-header-icon { font-size: 2rem; flex-shrink: 0; }
+.gc-pme-header h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.2rem;
+}
+.gc-pme-header p { font-size: 0.88rem; opacity: 0.9; line-height: 1.5; }
+.gc-pme-body {
+  background: #fff;
+  border: 1px solid #f5c09a;
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  padding: 1.3rem 1.5rem;
+}
+.gc-pme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.gc-pme-card {
+  background: linear-gradient(135deg, #fff3ee, #fff8f4);
+  border: 1px solid #f5c09a;
+  border-radius: 10px;
+  padding: 0.75rem 0.7rem;
+  text-align: center;
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: #730202;
+  line-height: 1.3;
+}
+.gc-pme-note {
+  background: #f9f9f9;
+  border-left: 3px solid #e57e26;
+  border-radius: 0 8px 8px 0;
+  padding: 0.75rem 1rem;
+  font-size: 0.83rem;
+  color: #555;
+  line-height: 1.6;
+}
+.gc-pme-note b { color: #730202; }
+
+/* ---- FOOTER ---- */
+.gc-footer-info {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 1.2rem;
+  border-top: 1px solid #eee;
+  margin-top: 1rem;
+}
+.gc-footer-info span {
+  font-size: 0.85rem;
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.gc-footer-info b { color: #730202; }
+</style>
+
+<div class="gc-wrap">
+
+  <!-- HERO -->
+  <div class="gc-hero">
+    <div class="gc-hero-label">Juin &ndash; Juillet 2026</div>
+    <h2>Pronostics<br>Coupe du Monde 2026</h2>
+    <p>Pr&eacute;dites les scores, faites monter votre PME dans le classement &mdash; et d&eacute;crochez des cadeaux !</p>
+  </div>
+
+  <!-- CODE -->
+  <div class="gc-code-section">
+    <p>Votre code de participation</p>
+    <div class="gc-code-box">
+      <div class="gc-code-val" id="gc-code-val">GRAV2026</div>
+      <button class="gc-code-copy" onclick="navigator.clipboard.writeText('GRAV2026');this.textContent='Copi&eacute; !'">Copier</button>
+    </div>
+  </div>
+
+  <!-- STEPS -->
+  <div class="gc-steps">
+    <div class="gc-step">
+      <div class="gc-step-num">1</div>
+      <strong>Votre code</strong>
+      <p>Utilisez le code <strong>GRAV2026</strong> pour acc&eacute;der au concours</p>
+    </div>
+    <div class="gc-step">
+      <div class="gc-step-num">2</div>
+      <strong>Inscrivez-vous</strong>
+      <p>Entrez votre pr&eacute;nom et num&eacute;ro de t&eacute;l&eacute;phone</p>
+    </div>
+    <div class="gc-step">
+      <div class="gc-step-num">3</div>
+      <strong>Pronostiquez</strong>
+      <p>Pr&eacute;disez les scores de tous les matchs, de la phase de groupes jusqu&apos;&agrave; la finale</p>
+    </div>
+    <div class="gc-step">
+      <div class="gc-step-num">4</div>
+      <strong>Gagnez</strong>
+      <p>Les 5 meilleurs pronostiqueurs remportent un lot</p>
+    </div>
+  </div>
+
+  <!-- PME -->
+  <div class="gc-pme-section">
+    <div class="gc-pme-header">
+      <div class="gc-pme-header-icon">&#127942;</div>
+      <div>
+        <h3>La coop&eacute;rative entre dans l&apos;ar&egrave;ne !</h3>
+        <p>Chaque PME a sa propre &eacute;quipe. Rejoignez la v&ocirc;tre, cumulez les points et faites grimper votre entreprise dans le classement.</p>
+      </div>
+    </div>
+    <div class="gc-pme-body">
+      <div class="gc-pme-grid">
+        <div class="gc-pme-card">GravEtincelle</div>
+        <div class="gc-pme-card">Domimark kids</div>
+        <div class="gc-pme-card">Un th&eacute; pour soi</div>
+        <div class="gc-pme-card">Les senteurs de la sens&eacute;e</div>
+        <div class="gc-pme-card">Aigiullez moi</div>
+        <div class="gc-pme-card">Personnalis&apos;art</div>
+        <div class="gc-pme-card">Les juments de Julie</div>
+      </div>
+      <div class="gc-pme-note">
+        &#128101; &Agrave; l&apos;inscription, s&eacute;lectionnez votre PME dans la liste &mdash; vos points s&apos;ajoutent automatiquement &agrave; l&apos;&eacute;quipe.
+        <b>Le score d&apos;&eacute;quipe est calcul&eacute; sur la moyenne des points de tous ses membres.</b>
+        Vous ne faites pas partie d&apos;une PME&nbsp;? Pas de probl&egrave;me, cr&eacute;ez votre propre &eacute;quipe !
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="gc-cta-section">
+    <a class="gc-cta" href="https://pronostics.gravetincelle.com" target="_blank" rel="noopener">
+      Participer au concours &rarr;
+    </a>
+    <p class="gc-cta-note">S&apos;ouvre dans votre navigateur &middot; Gratuit &middot; Sans t&eacute;l&eacute;chargement</p>
+  </div>
+
+  <!-- INSTALL -->
+  <div class="gc-install">
+    <h3>&#128241; Installez l&apos;appli sur votre t&eacute;l&eacute;phone</h3>
+    <p class="gc-install-sub">Ajoutez le concours sur votre &eacute;cran d&apos;accueil pour y acc&eacute;der facilement, comme une vraie application.</p>
+    <div class="gc-install-cols">
+      <div class="gc-install-col">
+        <strong>iPhone &mdash; Safari</strong>
+        <ol>
+          <li>Ouvrez le lien dans Safari</li>
+          <li>Appuyez sur le bouton Partager &#9633;&#8679;</li>
+          <li>Choisissez &laquo;&nbsp;Sur l&apos;&eacute;cran d&apos;accueil&nbsp;&raquo;</li>
+          <li>Appuyez sur &laquo;&nbsp;Ajouter&nbsp;&raquo;</li>
+        </ol>
+      </div>
+      <div class="gc-install-col">
+        <strong>Android &mdash; Chrome</strong>
+        <ol>
+          <li>Ouvrez le lien dans Chrome</li>
+          <li>Appuyez sur les 3 points &#8942; en haut &agrave; droite</li>
+          <li>Choisissez &laquo;&nbsp;Ajouter &agrave; l&apos;&eacute;cran d&apos;accueil&nbsp;&raquo;</li>
+          <li>Appuyez sur &laquo;&nbsp;Installer&nbsp;&raquo;</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER INFO -->
+  <div class="gc-footer-info">
+    <span>&#9733; Score exact = <b>3 pts</b></span>
+    <span>&#10003; Bon vainqueur = <b>1 pt</b></span>
+    <span>&#128202; Classement en temps r&eacute;el</span>
+    <span>&#127942; Classement PME</span>
+    <span>&#127941; <b>5 lots</b> &agrave; gagner</span>
+  </div>
+
+</div>
