@@ -834,7 +834,7 @@
         </optgroup>
       </select>
     </div>
-    <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Modifiable jusqu'au 11 Juin · +5 pts si correct</p>
+    <p style="font-size:0.78rem;color:var(--gris);margin-top:-0.5rem">Modifiable jusqu'au 11 Juin · +20 pts si correct</p>
     <div class="error-msg" id="err-msg">Erreur</div>
     <button class="btn" onclick="enterConcours()">C'est parti ! →</button>
     <button class="btn btn-outline" style="margin-top:0.8rem" onclick="showInviteModal()">📲 Inviter des amis</button>
@@ -868,7 +868,7 @@
       <span><span class="dot gold"></span>Score exact = 3 pts</span>
       <span><span class="dot green"></span>Vainqueur correct = 1 pt</span>
       <span><span class="dot gray"></span>Raté = 0 pt</span>
-      <span><span class="dot gold"></span>Champion correct = 5 pts</span>
+      <span><span class="dot gold"></span>Champion correct = 20 pts</span>
     </div>
 
     <div class="group-filter" id="group-filter"></div>
@@ -925,7 +925,7 @@
 
     <!-- Champion du monde -->
     <div class="section-title">Champion du Monde</div>
-    <div class="info-box">Saisissez le vainqueur après la finale pour déclencher le bonus de 5 pts.</div>
+    <div class="info-box">Saisissez le vainqueur après la finale pour déclencher le bonus de 20 pts.</div>
     <div style="display:flex;gap:0.8rem;align-items:center;margin-bottom:2rem;flex-wrap:wrap">
       <select id="admin-winner" style="flex:1;min-width:200px">
         <option value="">— Pas encore connu —</option>
@@ -1188,7 +1188,7 @@ async function exportCSV() {
     myPronos.forEach(pr => {
       if (results[pr.match_id]) pts += calcPoints([pr.score_home, pr.score_away], results[pr.match_id]);
     });
-    if (STATE.worldCupWinner && p.winner_prediction === STATE.worldCupWinner) pts += 5;
+    if (STATE.worldCupWinner && p.winner_prediction === STATE.worldCupWinner) pts += 20;
     return [pts, p.name, p.code, p.team_name || '', p.winner_prediction || ''];
   }).sort((a,b) => b[0] - a[0]);
 
@@ -1290,7 +1290,7 @@ function renderChampionBox() {
   box.innerHTML = `
     <div class="champ-label">🏆 Mon pronostic Champion du Monde</div>
     <div class="champ-team">${w ? w + (correct ? ' 🏆' : wrong ? ' ❌' : '') : '<span style="opacity:0.5">Non renseigné</span>'}</div>
-    ${correct ? '<div class="champ-pts">+5 pts bonus !</div>' : ''}
+    ${correct ? '<div class="champ-pts">+20 pts bonus !</div>' : ''}
     ${changeHtml}
   `;
 }
@@ -1578,7 +1578,7 @@ async function renderClassement() {
         else rates++;
       }
     });
-    if (STATE.worldCupWinner && p.winner_prediction === STATE.worldCupWinner) pts += 5;
+    if (STATE.worldCupWinner && p.winner_prediction === STATE.worldCupWinner) pts += 20;
     return {
       name: p.name, pts, team: p.team_name || null,
       exacts, vainqueurs, rates, played,
@@ -1827,7 +1827,7 @@ async function renderAdminParticipants() {
         pts += calcPoints([pr.score_home, pr.score_away], results[pr.match_id]);
       }
     });
-    if (STATE.worldCupWinner && p.winner_prediction === STATE.worldCupWinner) pts += 5;
+    if (STATE.worldCupWinner && p.winner_prediction === STATE.worldCupWinner) pts += 20;
     return { code: p.code, name: p.name, pts, winner: p.winner_prediction || '–' };
   }).sort((a,b) => b.pts - a.pts);
 
