@@ -2019,11 +2019,7 @@ async function shareWhatsApp() {
     const rankStr = rank === 1 ? '1er' : `${rank}ème`;
     msg = `${medal} Je suis ${rankStr} sur ${total} avec ${pts} pts sur les pronostics FIFA 2026 de GravEtincelle !\n⚽ Rejoins le concours → pronostics.gravetincelle.com\nCode gratuit : GRAV2026\n💬 Rejoins la communauté : https://chat.whatsapp.com/EVrJdnILwVGCXTkspzO4UW`;
   }
-  if (navigator.share) {
-    try { await navigator.share({ text: msg }); } catch(e) {}
-  } else {
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-  }
+  location.href = `whatsapp://send?text=${encodeURIComponent(msg)}`;
 }
 
 function showInviteModal() {
