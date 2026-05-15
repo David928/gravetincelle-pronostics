@@ -972,7 +972,11 @@
     <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://pronostics.gravetincelle.com" style="border-radius:8px;width:180px;height:180px" alt="QR Code">
     <div style="margin-top:1rem;font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;letter-spacing:0.15em;color:var(--gris);text-transform:uppercase">Code boutique</div>
     <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--or);letter-spacing:0.1em">GRAV2026</div>
-    <div style="font-size:0.85rem;color:var(--gris);margin-bottom:1rem">pronostics.gravetincelle.com</div>
+    <div style="font-size:0.85rem;color:var(--gris);margin-bottom:1.2rem">pronostics.gravetincelle.com</div>
+    <a href="https://chat.whatsapp.com/EVrJdnILwVGCXTkspzO4UW" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;background:#25d366;color:#fff;border-radius:4px;padding:0.7rem 1.2rem;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:0.08em;text-decoration:none;margin-bottom:0.8rem">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.135.561 4.14 1.54 5.876L0 24l6.304-1.516A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 01-5.032-1.387l-.36-.215-3.742.9.942-3.64-.235-.374A9.808 9.808 0 012.182 12C2.182 6.573 6.573 2.182 12 2.182S21.818 6.573 21.818 12 17.427 21.818 12 21.818z"/></svg>
+      Rejoindre la communauté WhatsApp
+    </a>
     <button class="btn btn-outline" onclick="closeInvite()">Fermer</button>
   </div>
 </div>
@@ -2006,14 +2010,14 @@ function shareWhatsApp() {
   const myIdx = _entriesForModal.findIndex(e => e.code === STATE.currentCode);
   let msg;
   if (myIdx < 0) {
-    msg = `⚽ Je participe aux pronostics FIFA 2026 de GravEtincelle !\n👉 pronostics.gravetincelle.com\nCode gratuit : GRAV2026`;
+    msg = `⚽ Je participe aux pronostics FIFA 2026 de GravEtincelle !\n👉 pronostics.gravetincelle.com\nCode gratuit : GRAV2026\n💬 Rejoins la communauté WhatsApp : https://chat.whatsapp.com/EVrJdnILwVGCXTkspzO4UW`;
   } else {
     const rank = myIdx + 1;
     const pts = _entriesForModal[myIdx].pts;
     const total = _entriesForModal.length;
     const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '🏅';
     const rankStr = rank === 1 ? '1er' : `${rank}ème`;
-    msg = `${medal} Je suis ${rankStr} sur ${total} avec ${pts} pts sur les pronostics FIFA 2026 de GravEtincelle !\n⚽ Rejoins le concours → pronostics.gravetincelle.com\nCode gratuit : GRAV2026`;
+    msg = `${medal} Je suis ${rankStr} sur ${total} avec ${pts} pts sur les pronostics FIFA 2026 de GravEtincelle !\n⚽ Rejoins le concours → pronostics.gravetincelle.com\nCode gratuit : GRAV2026\n💬 Rejoins la communauté : https://chat.whatsapp.com/EVrJdnILwVGCXTkspzO4UW`;
   }
   window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
 }
