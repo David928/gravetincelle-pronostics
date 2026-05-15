@@ -1677,6 +1677,7 @@ function renderClassementHTML({ entries, results, participants }) {
     renderStatsFun(entries, participants || []);
 
   } else if (classementView === 'equipes') {
+    const TOP_N = 10;
     const teamMap = {};
     entries.forEach(e => {
       if (!e.team) return;
@@ -1684,8 +1685,10 @@ function renderClassementHTML({ entries, results, participants }) {
       teamMap[e.team].members.push(e);
     });
     const teams = Object.values(teamMap).map(t => {
-      const avg = t.members.reduce((s,m) => s + m.pts, 0) / t.members.length;
-      return { name: t.name, pts: Math.round(avg * 10) / 10, count: t.members.length, members: t.members };
+      const sorted = [...t.members].sort((a,b) => b.pts - a.pts);
+      const top = sorted.slice(0, TOP_N);
+      const avg = top.reduce((s,m) => s + m.pts, 0) / top.length;
+      return { name: t.name, pts: Math.round(avg * 10) / 10, count: t.members.length, members: sorted, topN: top.length };
     }).sort((a,b) => b.pts - a.pts);
 
     if (!teams.length) {
@@ -1694,23 +1697,30 @@ function renderClassementHTML({ entries, results, participants }) {
       return;
     }
     let tableHtml = `<table class="ranking-table"><thead>
-      <tr><th>#</th><th>Équipe</th><th style="text-align:right">Moy. pts</th></tr>
+      <tr><th>#</th><th>Équipe</th><th style="text-align:right">Score</th></tr>
     </thead><tbody>`;
     teams.forEach((t, i) => {
-      const memberList = t.members.map(m => m.name).join(', ');
+      const memberRows = t.members.map((m, mi) => {
+        const isTop = mi < TOP_N;
+        return `<span style="font-size:0.78rem;color:${isTop?'var(--or)':'var(--gris)'}">${isTop?'⭐ ':''}${m.name} (${m.pts} pts)</span>`;
+      }).join('<br>');
       tableHtml += `<tr>
         <td class="rank-num ${i<3?'top':''}">${i+1}</td>
         <td>
-          <div style="font-weight:700">${t.name}</div>
-          <div style="font-size:0.78rem;color:var(--gris)">${memberList} · ${t.count} joueur(s)</div>
+          <div style="font-weight:700">${t.name} <span style="font-size:0.75rem;color:var(--gris);font-weight:400">${t.count} joueur(s)</span></div>
+          <details style="margin-top:0.3rem"><summary style="font-size:0.75rem;color:var(--gris);cursor:pointer">Voir les membres</summary>
+          <div style="margin-top:0.4rem;line-height:1.8">${memberRows}</div></details>
         </td>
-        <td class="pts-cell">${t.pts}</td>
+        <td class="pts-cell" style="vertical-align:top">
+          ${t.pts}
+          <div style="font-size:0.7rem;color:var(--gris)">top ${Math.min(TOP_N, t.count)}</div>
+        </td>
       </tr>`;
     });
     tableHtml += '</tbody></table>';
     container.innerHTML = `
       <div class="info-box" style="margin-bottom:1.5rem">
-        <strong>${teams.length}</strong> équipe(s) · Score = moyenne des points des membres
+        <strong>${teams.length}</strong> équipe(s) · Score = moyenne des <strong>10 meilleurs</strong> joueurs de l'équipe ⭐
       </div>
       ${buildPodium(teams)}
       ${tableHtml}`;
