@@ -2006,11 +2006,11 @@ function renderStatsFun(entries, participants) {
 }
 
 // ========== INVITE / QR CODE ==========
-function shareWhatsApp() {
+async function shareWhatsApp() {
   const myIdx = _entriesForModal.findIndex(e => e.code === STATE.currentCode);
   let msg;
   if (myIdx < 0) {
-    msg = `⚽ Je participe aux pronostics FIFA 2026 de GravEtincelle !\n👉 pronostics.gravetincelle.com\nCode gratuit : GRAV2026\n💬 Rejoins la communauté WhatsApp : https://chat.whatsapp.com/EVrJdnILwVGCXTkspzO4UW`;
+    msg = `⚽ Je participe aux pronostics FIFA 2026 de GravEtincelle !\n👉 pronostics.gravetincelle.com\nCode gratuit : GRAV2026\n💬 Rejoins la communauté : https://chat.whatsapp.com/EVrJdnILwVGCXTkspzO4UW`;
   } else {
     const rank = myIdx + 1;
     const pts = _entriesForModal[myIdx].pts;
@@ -2019,7 +2019,11 @@ function shareWhatsApp() {
     const rankStr = rank === 1 ? '1er' : `${rank}ème`;
     msg = `${medal} Je suis ${rankStr} sur ${total} avec ${pts} pts sur les pronostics FIFA 2026 de GravEtincelle !\n⚽ Rejoins le concours → pronostics.gravetincelle.com\nCode gratuit : GRAV2026\n💬 Rejoins la communauté : https://chat.whatsapp.com/EVrJdnILwVGCXTkspzO4UW`;
   }
-  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  if (navigator.share) {
+    try { await navigator.share({ text: msg }); } catch(e) {}
+  } else {
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  }
 }
 
 function showInviteModal() {
